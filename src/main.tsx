@@ -1,7 +1,7 @@
 import "@logseq/libs";
 
 import { BlockEntity, IHookEvent } from "@logseq/libs/dist/LSPlugin";
-import settingSchema from "./settings";
+import settingSchema, { Visibility } from "./settings";
 import MemosSync from "./memos";
 
 function main() {
@@ -13,7 +13,7 @@ function main() {
 
   logseq.App.registerCommandPalette(
     { key: "sync-memos", label: "Sync Memos" },
-    async (e: IHookEvent) => {
+    async () => {
       logseq.UI.showMsg("Staring Sync Memos");
       memosSync.syncMemos();
     }
@@ -23,14 +23,15 @@ function main() {
     memosSync.parseSetting();
   });
 
-  const visiblities = ["Public", "Protected", "Private"];
-  visiblities.forEach((visibility) => {
+  const { sendVisibility }: any = logseq.settings;
+  sendVisibility.forEach((visibility: Visibility) => {
+    console.log(visibility);
     logseq.Editor.registerSlashCommand(
-      `memos:Send in ${visibility}`,
+      `memos: Send in ${visibility}`,
       async () => {
         const entity: BlockEntity | null =
           await logseq.Editor.getCurrentBlock();
-        await memosSync.post(entity, visibility.toUpperCase());
+        await memosSync.post(entity, visibility);
       }
     );
   });
